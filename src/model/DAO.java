@@ -7,7 +7,7 @@ public class DAO {
 
 	private String driver = "com.mysql.cj.jdbc.Driver";
 
-	private String url = "jdbc:mysql://10.23.46.20:3306/dbPadaria";
+	private String url = "jdbc:mysql://10.23.46.26:3306/dbCoworking";
 
 	private String user = "ti";
 
@@ -15,13 +15,13 @@ public class DAO {
 
 	public Connection conectar() {
 		// Objeto usado para a conexão
-		Connection conexaobanco = null;
+		Connection conexaoBanco = null;
 
 		try {
 			//Uso do Driver JDBC
 			Class.forName(driver);
-			conexaobanco = DriverManager.getConnection(url, user, password); 
-			return conexaobanco;
+			conexaoBanco = DriverManager.getConnection(url, user, password); 
+			return conexaoBanco;
 		}
 
 		catch (Exception e) {
