@@ -1,24 +1,25 @@
 package view;
 
-import javax.swing.JDialog;
-
+import java.awt.Cursor;
 import java.awt.EventQueue;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.nio.file.attribute.AclEntry;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import model.DAO;
-
-import javax.swing.JPasswordField;
-import java.awt.Rectangle;
-import javax.swing.JButton;
-import java.awt.Cursor;
-import javax.swing.ImageIcon;
 
 public class Login extends JDialog {
 
@@ -59,6 +60,15 @@ public class Login extends JDialog {
 		btnLogin.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		btnLogin.setBounds(167, 182, 89, 23);
 		getContentPane().add(btnLogin);
+		
+		btnLogin.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				logar();
+				
+			}
+		});
 
 		JLabel tituloLogin = new JLabel("Acessar conta");
 		tituloLogin.setBounds(170, 36, 86, 23);
@@ -98,7 +108,32 @@ public class Login extends JDialog {
 
 		try {
 
-		} catch (Exception e) {
+			// Estabelecer a conexão
+			Connection conexaoBanco = dao.conectar();
+
+			// Preparar a execução do script SQL
+			PreparedStatement executarSQL = conexaoBanco.prepareStatement(read);
+
+			// Atribuir valores de login e senha
+			// Substituir as interrogações pelo conteúdo da caixa de texto (input)
+			executarSQL.setString(1, inputLogin.getText());
+			executarSQL.setString(2, inputSenha.getText());
+
+			// Executar os comandos SQL e de acordo com resultado liberar os recursos na
+			// tela
+			ResultSet resultadoExecucao = executarSQL.executeQuery();
+
+			// Validação do funcionário (autenticação)
+			// resultadoExecucao.next() significa que o login e a senha existem, ou seja,
+			// correspondem
+
+			if (resultadoExecucao.next()) {
+				System.out.println("Você logou!");
+			}
+
+		}
+
+		catch (Exception e) {
 			System.out.println(e);
 		}
 	}
