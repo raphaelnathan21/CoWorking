@@ -15,37 +15,64 @@ import java.awt.Cursor;
 public class Home extends JDialog {
 
 	private static final long serialVersionUID = 1L;
-	
-public Home() {
-	setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-	setBounds(new Rectangle(0, 0, 460, 300));
-	setIconImage(Toolkit.getDefaultToolkit().getImage(Home.class.getResource("/img/logo.png")));
-	setResizable(false);
-	setTitle("Home");
-	getContentPane().setLayout(null);
-	
-	JButton btnUser = new JButton("");
-	btnUser.setBorderPainted(false);
-	btnUser.setIcon(new ImageIcon(Home.class.getResource("/img/user.png")));
-	btnUser.setBounds(10, 78, 122, 99);
-	getContentPane().add(btnUser);
-	
-	JButton btnRoom = new JButton("");
-	btnRoom.setBorderPainted(false);
-	btnRoom.setIcon(new ImageIcon(Home.class.getResource("/img/room.png")));
-	btnRoom.setBounds(142, 78, 141, 99);
-	getContentPane().add(btnRoom);
-	
-	JButton btnReserve = new JButton("");
-	btnReserve.setBorderPainted(false);
-	btnReserve.addActionListener(new ActionListener() {
-		public void actionPerformed(ActionEvent e) {
-		}
-	});
-	btnReserve.setIcon(new ImageIcon(Home.class.getResource("/img/reserve.png")));
-	btnReserve.setBounds(293, 78, 141, 99);
-	getContentPane().add(btnReserve);
-		
+
+	public Home() {
+		setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		setBounds(new Rectangle(0, 0, 460, 300));
+		setIconImage(Toolkit.getDefaultToolkit().getImage(Home.class.getResource("/img/logo.png")));
+		setResizable(false);
+		setTitle("Home");
+		getContentPane().setLayout(null);
+
+		JButton btnUser = new JButton("");
+		btnUser.setBorderPainted(false);
+		btnUser.setIcon(new ImageIcon(Home.class.getResource("/img/user.png")));
+		btnUser.setBounds(10, 78, 122, 99);
+		getContentPane().add(btnUser);
+		btnUser.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Funcionarios funcionarios = new Funcionarios();
+				funcionarios.setVisible(true);
+
+			}
+		});
+
+		JButton btnRoom = new JButton("");
+		btnRoom.setBorderPainted(false);
+		btnRoom.setIcon(new ImageIcon(Home.class.getResource("/img/room.png")));
+		btnRoom.setBounds(142, 78, 141, 99);
+		getContentPane().add(btnRoom);
+		btnRoom.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Salas salas = new Salas();
+				salas.setVisible(true);
+
+			}
+		});
+
+		JButton btnReserve = new JButton("");
+		btnReserve.setBorderPainted(false);
+		btnReserve.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+		btnReserve.setIcon(new ImageIcon(Home.class.getResource("/img/reserve.png")));
+		btnReserve.setBounds(293, 78, 141, 99);
+		getContentPane().add(btnReserve);
+		btnReserve.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Reservas reservas = new Reservas();
+				reservas.setVisible(true);
+
+			}
+		});
+
 	}
 
 	public static void main(String[] args) {
@@ -56,7 +83,7 @@ public Home() {
 					dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 					dialog.setVisible(true);
 				}
-				
+
 				catch (Exception e) {
 					e.printStackTrace();
 				}
