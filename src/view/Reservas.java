@@ -8,8 +8,15 @@ import java.awt.Toolkit;
 
 public class Reservas extends JDialog {
 
-	private static final long serialVersionUID = 1L;
+	public Reservas() {
+		setTitle("Reservas");
+		setResizable(false);
+		setBounds(new Rectangle(300, 100, 613, 362));
+		setIconImage(Toolkit.getDefaultToolkit().getImage(Login.class.getResource("/img/logo.png")));
+		getContentPane().setLayout(null);
 
+	}
+	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -17,23 +24,10 @@ public class Reservas extends JDialog {
 					Reservas dialog = new Reservas();
 					dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 					dialog.setVisible(true);
-				}
-
-				catch (Exception e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		});
-
 	}
-	
-	public Reservas () {
-		setResizable(false);
-		setTitle("Reservas");
-		setIconImage(Toolkit.getDefaultToolkit().getImage(Reservas.class.getResource("/img/logo.png")));
-		setBounds(new Rectangle(0, 0, 450, 300));
-		getContentPane().setLayout(null);
-		
-	}
-
 }
