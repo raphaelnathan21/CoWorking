@@ -118,8 +118,6 @@ public class Funcionarios extends JDialog {
 				atualizarFuncionario();
 			}
 		});
-		
-		
 
 		imgDelete = new JButton("");
 		imgDelete.setBackground(new Color(240, 240, 240));
@@ -146,7 +144,7 @@ public class Funcionarios extends JDialog {
 
 		tblFuncionarios = new JTable();
 		scrollPane.setViewportView(tblFuncionarios);
-		
+
 		JButton btnPesquisar = new JButton("");
 		btnPesquisar.setBackground(new Color(240, 240, 240));
 		btnPesquisar.setBorderPainted(false);
@@ -159,11 +157,11 @@ public class Funcionarios extends JDialog {
 		btnPesquisar.setIcon(new ImageIcon(Funcionarios.class.getResource("/img/search.png")));
 		btnPesquisar.setBounds(284, 175, 32, 20);
 		getContentPane().add(btnPesquisar);
-		
+
 		JLabel idFunc = new JLabel("ID:");
 		idFunc.setBounds(24, 178, 46, 14);
 		getContentPane().add(idFunc);
-		
+
 		inputID = new JTextField();
 		inputID.setEnabled(false);
 		inputID.setBounds(74, 175, 200, 20);
@@ -187,39 +185,59 @@ public class Funcionarios extends JDialog {
 	private void adicionarFuncionario() {
 		String create = "insert into funcionario (nomeFunc, login, senha, perfil, email) values (?, ?, md5(?), ?, ?);";
 
-		try {
-			// Estabelecer a conexão
-			Connection conexaoBanco = dao.conectar();
-
-			// Preparar a execusão do script SQL
-			PreparedStatement executarSQL = conexaoBanco.prepareStatement(create);
-
-			// Substituir os pontos de interrogação pelo conteúdo das caixas de texto
-			// (inputs)
-			executarSQL.setString(1, inputNome.getText());
-			executarSQL.setString(2, inputLogin.getText());
-			executarSQL.setString(3, inputSenha.getText());
-
-			executarSQL.setString(4, inputPerfil.getSelectedItem().toString());
-
-			executarSQL.setString(5, inputEmail.getText());
-
-			// Executar os comandos SQL e inserir o funcionário no banco de dados
-			executarSQL.executeUpdate();
-
-			conexaoBanco.close();
-
-			JOptionPane.showMessageDialog(null, "Usuário cadastrado com sucesso!");
-
-			limparCampos();
-
+		if (inputLogin.getText().isEmpty()) {
+			JOptionPane.showMessageDialog(null, "Login do usuário obrigatório!");
+			inputLogin.requestFocus();
 		}
 
-		catch (SQLIntegrityConstraintViolationException error) {
-			JOptionPane.showMessageDialog(null, "Login em uso. \nEscolha outro nome de usuário.");
+		// Validação da senha do usuário
+		else if (inputSenha.getPassword().length == 0) {
+			JOptionPane.showMessageDialog(null, "Senha do usuário obrigatória!");
+			inputSenha.requestFocus();
+		} else if (inputNome.getText().isEmpty()) {
+			JOptionPane.showMessageDialog(null, "Nome do usuário obrigatório!");
+			inputNome.requestFocus();
+		} else if (inputEmail.getText().isEmpty()) {
+			JOptionPane.showMessageDialog(null, "E-mail do usuário obrigatório!");
+			inputEmail.requestFocus();
 		}
 
-		catch (Exception e) {
+		else {
+			try {
+				// Estabelecer a conexão
+				Connection conexaoBanco = dao.conectar();
+
+				// Preparar a execusão do script SQL
+				PreparedStatement executarSQL = conexaoBanco.prepareStatement(create);
+
+				// Substituir os pontos de interrogação pelo conteúdo das caixas de texto
+				// (inputs)
+				executarSQL.setString(1, inputNome.getText());
+				executarSQL.setString(2, inputLogin.getText());
+				executarSQL.setString(3, inputSenha.getText());
+
+				executarSQL.setString(4, inputPerfil.getSelectedItem().toString());
+
+				executarSQL.setString(5, inputEmail.getText());
+
+				// Executar os comandos SQL e inserir o funcionário no banco de dados
+				executarSQL.executeUpdate();
+
+				conexaoBanco.close();
+
+				JOptionPane.showMessageDialog(null, "Usuário cadastrado com sucesso!");
+
+				limparCampos();
+
+			}
+
+			catch (SQLIntegrityConstraintViolationException error) {
+				JOptionPane.showMessageDialog(null, "Login em uso. \nEscolha outro nome de usuário.");
+			}
+
+			catch (Exception e) {
+				System.out.println(e);
+			}
 
 		}
 
@@ -286,91 +304,113 @@ public class Funcionarios extends JDialog {
 
 		inputNome.setText(tblFuncionarios.getModel().getValueAt(setarLinha, 1).toString());
 		inputID.setText(tblFuncionarios.getModel().getValueAt(setarLinha, 0).toString());
-		//inputEmail.setText(tblFuncionarios.getModel().getValueAt(setarLinha, 2).toString());
+		// inputEmail.setText(tblFuncionarios.getModel().getValueAt(setarLinha,
+		// 2).toString());
 
 	}
-	
-	//Criar método para buscar funcionário pelo botão Pesquisar
+
+	// Criar método para buscar funcionário pelo botão Pesquisar
 	private void btnBuscarFuncionario() {
 		String readBtn = "select * from funcionario where idFuncionario = ?;";
-		
+
 		try {
-			//Estabelecer a conexão
+			// Estabelecer a conexão
 			Connection conexaoBanco = dao.conectar();
-			
-			//Preparar a execução do comando SQL
+
+			// Preparar a execução do comando SQL
 			PreparedStatement executarSQL = conexaoBanco.prepareStatement(readBtn);
-			
-			//Substituir
+
+			// Substituir
 			executarSQL.setString(1, inputID.getText());
-			
-			//Executar o comando SQL e exibir o resultado no formulário funcionário (todos os seus dados)
+
+			// Executar o comando SQL e exibir o resultado no formulário funcionário (todos
+			// os seus dados)
 			ResultSet resultadoExecucao = executarSQL.executeQuery();
-			
+
 			if (resultadoExecucao.next()) {
-				//Preencher os campos do formulário
+				// Preencher os campos do formulário
 				inputLogin.setText(resultadoExecucao.getString(3));
 				inputSenha.setText(resultadoExecucao.getString(4));
 				inputPerfil.setSelectedItem(resultadoExecucao.getString(5));
 				inputEmail.setText(resultadoExecucao.getString(6));
 			}
 		}
-		
+
 		catch (Exception e) {
 			System.out.println(e);
 		}
-		
+
 	}
-	
+
 	private void atualizarFuncionario() {
 		String updateBtn = "update funcionario set nomeFunc = ?, login = ?, senha = md5(?), perfil = ?, email = ?  where idFuncionario = ?;";
-		
-		try {
-			//Estabelecer a conexão
-			Connection conexaoBanco = dao.conectar();
-			
-			//Preparar a execução do comando SQL
-			PreparedStatement executarSQL = conexaoBanco.prepareStatement(updateBtn);
-			
-			//Substituir
-			executarSQL.setString(1, inputNome.getText());
-			executarSQL.setString(2, inputLogin.getText());
-			executarSQL.setString(3, inputSenha.getText());
 
-			executarSQL.setString(4, inputPerfil.getSelectedItem().toString());
-
-			executarSQL.setString(5, inputEmail.getText());
-			executarSQL.setString(6, inputID.getText());
-			
-			executarSQL.executeUpdate();
-
-			conexaoBanco.close();
-
-			JOptionPane.showMessageDialog(null, "Usuário editado com sucesso!");
-
-			limparCampos();
-			
-			
+		if (inputLogin.getText().isEmpty()) {
+			JOptionPane.showMessageDialog(null, "Login do usuário obrigatório!");
+			inputLogin.requestFocus();
 		}
-		catch (Exception e) {
-			System.out.println(e);
+
+		// Validação da senha do usuário
+		else if (inputSenha.getPassword().length == 0) {
+			JOptionPane.showMessageDialog(null, "Senha do usuário obrigatória!");
+			inputSenha.requestFocus();
+		} else if (inputNome.getText().isEmpty()) {
+			JOptionPane.showMessageDialog(null, "Nome do usuário obrigatório!");
+			inputNome.requestFocus();
+		} else if (inputEmail.getText().isEmpty()) {
+			JOptionPane.showMessageDialog(null, "E-mail do usuário obrigatório!");
+			inputEmail.requestFocus();
 		}
+
+		else {
+
+			try {
+				// Estabelecer a conexão
+				Connection conexaoBanco = dao.conectar();
+
+				// Preparar a execução do comando SQL
+				PreparedStatement executarSQL = conexaoBanco.prepareStatement(updateBtn);
+
+				// Substituir
+				executarSQL.setString(1, inputNome.getText());
+				executarSQL.setString(2, inputLogin.getText());
+				executarSQL.setString(3, inputSenha.getText());
+
+				executarSQL.setString(4, inputPerfil.getSelectedItem().toString());
+
+				executarSQL.setString(5, inputEmail.getText());
+				executarSQL.setString(6, inputID.getText());
+
+				executarSQL.executeUpdate();
+
+				conexaoBanco.close();
+
+				JOptionPane.showMessageDialog(null, "Usuário editado com sucesso!");
+
+				limparCampos();
+
+			} catch (Exception e) {
+				System.out.println(e);
+			}
+
+		}
+
 	}
-	
+
 	private void deletarFuncionario() {
 		String updateBtn = "delete from funcionario where idFuncionario = ?;";
-		
+
 		try {
-			//Estabelecer a conexão
+			// Estabelecer a conexão
 			Connection conexaoBanco = dao.conectar();
-			
-			//Preparar a execução do comando SQL
+
+			// Preparar a execução do comando SQL
 			PreparedStatement executarSQL = conexaoBanco.prepareStatement(updateBtn);
-			
-			//Substituir
-			
+
+			// Substituir
+
 			executarSQL.setString(1, inputID.getText());
-			
+
 			executarSQL.executeUpdate();
 
 			conexaoBanco.close();
@@ -378,13 +418,10 @@ public class Funcionarios extends JDialog {
 			JOptionPane.showMessageDialog(null, "Usuário excluído com sucesso!");
 
 			limparCampos();
-			
-			
-		}
-		catch (Exception e) {
+
+		} catch (Exception e) {
 			System.out.println(e);
 		}
 	}
-	
-	
+
 }
