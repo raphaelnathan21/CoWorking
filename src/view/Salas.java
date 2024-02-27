@@ -1,5 +1,6 @@
 package view;
 
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.EventQueue;
 import java.awt.Rectangle;
@@ -22,14 +23,12 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
 import model.DAO;
 import net.proteanit.sql.DbUtils;
-import java.awt.Color;
 
 public class Salas extends JDialog {
 	private JTextField inputOcup;
@@ -79,7 +78,7 @@ public class Salas extends JDialog {
 
 		imgCreate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//adicionarFuncionario();
+				adicionarSala();
 			}
 		});
 
@@ -92,7 +91,7 @@ public class Salas extends JDialog {
 		getContentPane().add(imgUpdate);
 		imgUpdate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-			//	atualizarFuncionario();
+				atualizarSala();
 			}
 		});
 
@@ -105,7 +104,7 @@ public class Salas extends JDialog {
 		getContentPane().add(imgDelete);
 		imgDelete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-			//	deletarFuncionario();
+				deletarSala();
 			}
 		});
 
@@ -121,7 +120,7 @@ public class Salas extends JDialog {
 		btnPesquisar.setBorderPainted(false);
 		btnPesquisar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-			//	btnBuscarFuncionario();
+				btnBuscarSala();
 			}
 		});
 		btnPesquisar.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -129,31 +128,28 @@ public class Salas extends JDialog {
 		btnPesquisar.setBounds(284, 175, 32, 20);
 		getContentPane().add(btnPesquisar);
 
-		JLabel idFunc = new JLabel("ID:");
-		idFunc.setBounds(24, 178, 46, 14);
-		getContentPane().add(idFunc);
-
-		inputID = new JTextField();
-		inputID.setEnabled(false);
-		inputID.setBounds(74, 175, 200, 20);
-		getContentPane().add(inputID);
-		inputID.setColumns(10);
-		
 		inputCategoria = new JComboBox();
-		inputCategoria.setModel(new DefaultComboBoxModel(new String[] {"", "Sala de Reunião", "Sala de Conferência", "Espaço de Eventos", "Escritório privado"}));
+		inputCategoria.setModel(new DefaultComboBoxModel(new String[] { "", "Sala de Reunião", "Sala de Conferência",
+				"Espaço de Eventos", "Escritório privado" }));
 		inputCategoria.setBounds(74, 50, 479, 22);
 		getContentPane().add(inputCategoria);
-		
+		inputCategoria.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent e) {
+				BuscarSalaNaTabela();
+			}
+		});
+
 		inputCod = new JComboBox();
-		inputCod.setModel(new DefaultComboBoxModel(new String[] {"", "REU", "CONF", "EVENT", "PRIV"}));
+		inputCod.setModel(new DefaultComboBoxModel(new String[] { "", "REU", "CONF", "EVENT", "PRIV" }));
 		inputCod.setBounds(74, 216, 200, 22);
 		getContentPane().add(inputCod);
-		
+
 		inputAndar = new JComboBox();
-		inputAndar.setModel(new DefaultComboBoxModel(new String[] {"", "Subsolo", "Térreo", "1° Andar", "2° Andar", "3° Andar", ""}));
+		inputAndar.setModel(new DefaultComboBoxModel(
+				new String[] { "", "Subsolo", "Térreo", "1° Andar", "2° Andar", "3° Andar", "" }));
 		inputAndar.setBounds(355, 216, 200, 22);
 		getContentPane().add(inputAndar);
-		
+
 		inputNum = new JTextField();
 		inputNum.setBounds(74, 265, 101, 20);
 		getContentPane().add(inputNum);
@@ -161,7 +157,7 @@ public class Salas extends JDialog {
 
 		tblSalas.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
-			//	setarCaixasTexto();
+				setarCaixasTexto();
 			}
 		});
 
@@ -170,29 +166,35 @@ public class Salas extends JDialog {
 	// Criar um objeto da classe DAO para estabelecer conexão com banco
 	DAO dao = new DAO();
 	private JTable tblSalas;
-	private JTextField inputID;
 	private JComboBox inputCategoria;
 	private JComboBox inputCod;
 	private JComboBox inputAndar;
 	private JTextField inputNum;
 
-	/* private void adicionarFuncionario() {
-		String create = "insert into funcionario (nomeFunc, login, senha, perfil, email) values (?, ?, md5(?), ?, ?);";
+	private void adicionarSala() {
+		String create = "insert into salas (andarSala, numeroSala, tipoSala, codigoSala, ocupacaoSala) values (?, ?, ?, ?, ?);";
 
-		if (inputLogin.getText().isEmpty()) {
-			JOptionPane.showMessageDialog(null, "Login do usuário obrigatório!");
-			inputLogin.requestFocus();
+		if (inputCategoria.getSelectedItem().equals("")) {
+			JOptionPane.showMessageDialog(null, "Categoria da sala obrigatória!");
+			inputCategoria.requestFocus();
 		}
 
-		// Validação da senha do usuário
-		else if (inputSenha.getPassword().length == 0) {
-			JOptionPane.showMessageDialog(null, "Senha do usuário obrigatória!");
-			inputSenha.requestFocus();
-		} else if (inputNome.getText().isEmpty()) {
-			JOptionPane.showMessageDialog(null, "Nome do usuário obrigatório!");
-			inputNome.requestFocus();
-		} else if (inputOcup.getText().isEmpty()) {
-			JOptionPane.showMessageDialog(null, "E-mail do usuário obrigatório!");
+		else if (inputCod.getSelectedItem().equals("")) {
+			JOptionPane.showMessageDialog(null, "Código da sala obrigatório!");
+			inputCod.requestFocus();
+
+		} else if (inputAndar.getSelectedItem().equals("")) {
+			JOptionPane.showMessageDialog(null, "Andar da sala obrigatória!");
+			inputAndar.requestFocus();
+
+		} else if (inputNum.getText().isEmpty()) {
+			JOptionPane.showMessageDialog(null, "Número da sala obrigatório!");
+			inputNum.requestFocus();
+
+		}
+
+		else if (inputOcup.getText().isEmpty()) {
+			JOptionPane.showMessageDialog(null, "Ocupação máxima obrigatória!");
 			inputOcup.requestFocus();
 		}
 
@@ -206,11 +208,11 @@ public class Salas extends JDialog {
 
 				// Substituir os pontos de interrogação pelo conteúdo das caixas de texto
 				// (inputs)
-				executarSQL.setString(1, inputNome.getText());
-				executarSQL.setString(2, inputLogin.getText());
-				executarSQL.setString(3, inputSenha.getText());
+				executarSQL.setString(1, inputAndar.getSelectedItem().toString());
+				executarSQL.setString(2, inputNum.getText());
+				executarSQL.setString(3, inputCategoria.getSelectedItem().toString());
 
-				executarSQL.setString(4, inputPerfil.getSelectedItem().toString());
+				executarSQL.setString(4, inputCod.getSelectedItem().toString());
 
 				executarSQL.setString(5, inputOcup.getText());
 
@@ -219,14 +221,14 @@ public class Salas extends JDialog {
 
 				conexaoBanco.close();
 
-				JOptionPane.showMessageDialog(null, "Usuário cadastrado com sucesso!");
+				JOptionPane.showMessageDialog(null, "Sala cadastrada com sucesso!");
 
 				limparCampos();
 
 			}
 
 			catch (SQLIntegrityConstraintViolationException error) {
-				JOptionPane.showMessageDialog(null, "Login em uso. \nEscolha outro nome de usuário.");
+				JOptionPane.showMessageDialog(null, "Sala já cadastrada.");
 			}
 
 			catch (Exception e) {
@@ -236,20 +238,16 @@ public class Salas extends JDialog {
 		}
 
 	}
-	
-	
-
-	
 
 	public void limparCampos() {
-		inputNome.setText(null);
-		inputLogin.setText(null);
-		inputSenha.setText(null);
+		inputCategoria.setSelectedItem("");
+		inputCod.setSelectedItem("");
+		inputAndar.setSelectedItem("");
+		inputNum.setText(null);
 		inputOcup.setText(null);
-		inputPerfil.setSelectedItem(null);
 
 		// Posicionar o cursor de volta no campo Nome
-		inputNome.requestFocus();
+		inputCategoria.requestFocus();
 
 	}
 
@@ -257,16 +255,48 @@ public class Salas extends JDialog {
 		// Criar uma variável para receber a linha da tabela
 		int setarLinha = tblSalas.getSelectedRow();
 
-		inputNome.setText(tblSalas.getModel().getValueAt(setarLinha, 1).toString());
-		inputID.setText(tblSalas.getModel().getValueAt(setarLinha, 0).toString());
-		// inputEmail.setText(tblSalas.getModel().getValueAt(setarLinha,
-		// 2).toString());
+		inputCategoria.setSelectedItem(tblSalas.getModel().getValueAt(setarLinha, 0).toString());
+		inputNum.setText(tblSalas.getModel().getValueAt(setarLinha, 2).toString());
 
 	}
 
 	// Criar método para buscar funcionário pelo botão Pesquisar
-	private void btnBuscarFuncionario() {
-		String readBtn = "select * from funcionario where idFuncionario = ?;";
+	private void btnBuscarSala() {
+		String readBtn = "select * from salas where numeroSala = ?;";
+
+		try {
+			// Estabelecer a conexão
+			Connection conexaoBanco = dao.conectar();
+
+			PreparedStatement executarSQL = conexaoBanco.prepareStatement(readBtn);
+
+			executarSQL.setString(1, inputNum.getText());
+
+			// Executar o comando SQL e exibir o resultado no formulário funcionário (todos
+			// os seus dados)
+			ResultSet resultadoExecucao = executarSQL.executeQuery();
+
+			if (resultadoExecucao.next()) {
+				// Preencher os campos do formulário
+
+				inputAndar.setSelectedItem(resultadoExecucao.getString(2));
+				inputCod.setSelectedItem(resultadoExecucao.getString(5));
+				inputOcup.setText(resultadoExecucao.getString(6));
+
+			}
+
+		}
+
+		catch (Exception e) {
+			System.out.println(e);
+		}
+
+	}
+			
+			
+		
+	private void BuscarSalaNaTabela() {
+		String readBtn = "select tipoSala as Categoria, andarSala as Andar, numeroSala as Número from salas where tipoSala = ?;";
 
 		try {
 			// Estabelecer a conexão
@@ -276,19 +306,15 @@ public class Salas extends JDialog {
 			PreparedStatement executarSQL = conexaoBanco.prepareStatement(readBtn);
 
 			// Substituir
-			executarSQL.setString(1, inputID.getText());
+			executarSQL.setString(1, inputCategoria.getSelectedItem().toString());
 
 			// Executar o comando SQL e exibir o resultado no formulário funcionário (todos
 			// os seus dados)
 			ResultSet resultadoExecucao = executarSQL.executeQuery();
 
-			if (resultadoExecucao.next()) {
-				// Preencher os campos do formulário
-				inputLogin.setText(resultadoExecucao.getString(3));
-				inputSenha.setText(resultadoExecucao.getString(4));
-				inputPerfil.setSelectedItem(resultadoExecucao.getString(5));
-				inputOcup.setText(resultadoExecucao.getString(6));
-			}
+			tblSalas.setModel(DbUtils.resultSetToTableModel(resultadoExecucao));
+
+			conexaoBanco.close();
 		}
 
 		catch (Exception e) {
@@ -297,23 +323,30 @@ public class Salas extends JDialog {
 
 	}
 
-	private void atualizarFuncionario() {
-		String updateBtn = "update funcionario set nomeFunc = ?, login = ?, senha = md5(?), perfil = ?, email = ?  where idFuncionario = ?;";
+	private void atualizarSala() {
+		String updateBtn = "update sala set tipoSala = ?, codigoSala = ?, andarSala = ?, ocupacaoSala = ?  where numeroSala = ?;";
 
-		if (inputLogin.getText().isEmpty()) {
-			JOptionPane.showMessageDialog(null, "Login do usuário obrigatório!");
-			inputLogin.requestFocus();
+		if (inputCategoria.getSelectedItem().equals("")) {
+			JOptionPane.showMessageDialog(null, "Categoria da sala obrigatória!");
+			inputCategoria.requestFocus();
 		}
 
-		// Validação da senha do usuário
-		else if (inputSenha.getPassword().length == 0) {
-			JOptionPane.showMessageDialog(null, "Senha do usuário obrigatória!");
-			inputSenha.requestFocus();
-		} else if (inputNome.getText().isEmpty()) {
-			JOptionPane.showMessageDialog(null, "Nome do usuário obrigatório!");
-			inputNome.requestFocus();
-		} else if (inputOcup.getText().isEmpty()) {
-			JOptionPane.showMessageDialog(null, "E-mail do usuário obrigatório!");
+		else if (inputCod.getSelectedItem().equals("")) {
+			JOptionPane.showMessageDialog(null, "Código da sala obrigatório!");
+			inputCod.requestFocus();
+
+		} else if (inputAndar.getSelectedItem().equals("")) {
+			JOptionPane.showMessageDialog(null, "Andar da sala obrigatória!");
+			inputAndar.requestFocus();
+
+		} else if (inputNum.getText().isEmpty()) {
+			JOptionPane.showMessageDialog(null, "Número da sala obrigatório!");
+			inputNum.requestFocus();
+
+		}
+
+		else if (inputOcup.getText().isEmpty()) {
+			JOptionPane.showMessageDialog(null, "Ocupação máxima obrigatória!");
 			inputOcup.requestFocus();
 		}
 
@@ -327,20 +360,18 @@ public class Salas extends JDialog {
 				PreparedStatement executarSQL = conexaoBanco.prepareStatement(updateBtn);
 
 				// Substituir
-				executarSQL.setString(1, inputNome.getText());
-				executarSQL.setString(2, inputLogin.getText());
-				executarSQL.setString(3, inputSenha.getText());
+				executarSQL.setString(1, inputCategoria.getSelectedItem().toString());
+				executarSQL.setString(2, inputCod.getSelectedItem().toString());
+				executarSQL.setString(3, inputAndar.getSelectedItem().toString());
 
-				executarSQL.setString(4, inputPerfil.getSelectedItem().toString());
-
-				executarSQL.setString(5, inputOcup.getText());
-				executarSQL.setString(6, inputID.getText());
+				executarSQL.setString(4, inputOcup.getText());
+				executarSQL.setString(5, inputNum.getText());
 
 				executarSQL.executeUpdate();
 
 				conexaoBanco.close();
 
-				JOptionPane.showMessageDialog(null, "Usuário editado com sucesso!");
+				JOptionPane.showMessageDialog(null, "Sala editada com sucesso!");
 
 				limparCampos();
 
@@ -352,8 +383,8 @@ public class Salas extends JDialog {
 
 	}
 
-	private void deletarFuncionario() {
-		String updateBtn = "delete from funcionario where idFuncionario = ?;";
+	private void deletarSala() {
+		String updateBtn = "delete from salas where numeroSala = ?;";
 
 		try {
 			// Estabelecer a conexão
@@ -364,13 +395,13 @@ public class Salas extends JDialog {
 
 			// Substituir
 
-			executarSQL.setString(1, inputID.getText());
+			executarSQL.setString(1, inputNum.getText());
 
 			executarSQL.executeUpdate();
 
 			conexaoBanco.close();
 
-			JOptionPane.showMessageDialog(null, "Usuário excluído com sucesso!");
+			JOptionPane.showMessageDialog(null, "Sala excluída com sucesso!");
 
 			limparCampos();
 
@@ -378,9 +409,7 @@ public class Salas extends JDialog {
 			System.out.println(e);
 		}
 	}
-	
-	*/
-	
+
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
