@@ -24,6 +24,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
 
 import model.DAO;
 import net.proteanit.sql.DbUtils;
@@ -82,6 +83,7 @@ public class Salas extends JDialog {
 		});
 
 		imgUpdate = new JButton("");
+		imgUpdate.setEnabled(false);
 		imgUpdate.setBackground(new Color(240, 240, 240));
 		imgUpdate.setBorderPainted(false);
 		imgUpdate.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -96,6 +98,7 @@ public class Salas extends JDialog {
 		});
 
 		imgDelete = new JButton("");
+		imgDelete.setEnabled(false);
 		imgDelete.setBackground(new Color(240, 240, 240));
 		imgDelete.setBorderPainted(false);
 		imgDelete.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -103,11 +106,13 @@ public class Salas extends JDialog {
 		imgDelete.setBounds(581, 342, 65, 54);
 		getContentPane().add(imgDelete);
 		
+		
 		imgDelete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				deletarSala();
 			}
 		});
+		
 
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBounds(95, 54, 516, 90);
@@ -117,6 +122,7 @@ public class Salas extends JDialog {
 		scrollPane.setViewportView(tblSalas);
 
 		JButton btnPesquisar = new JButton("");
+		btnPesquisar.setEnabled(false);
 		btnPesquisar.setBackground(new Color(240, 240, 240));
 		btnPesquisar.setBorderPainted(false);
 		btnPesquisar.setIcon(new ImageIcon(Salas.class.getResource("/img/search.png")));
@@ -129,6 +135,9 @@ public class Salas extends JDialog {
 		getContentPane().add(inputID);
 		inputID.setColumns(10);
 
+		
+		
+		
 		// Deixar o campo ID invisível
 		inputID.setVisible(false);
 
@@ -171,6 +180,9 @@ public class Salas extends JDialog {
 		tblSalas.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				setarCaixasTexto();
+				btnPesquisar.setEnabled(true);
+				imgCreate.setEnabled(false);
+				imgDelete.setEnabled(true);
 			}
 		});
 
@@ -241,6 +253,7 @@ public class Salas extends JDialog {
 
 				JOptionPane.showMessageDialog(null, "Sala cadastrada com sucesso!");
 				limparCampos();
+				((DefaultTableModel)tblSalas.getModel()).setRowCount(0);
 
 				conexaoBanco.close();
 			}
@@ -287,11 +300,17 @@ public class Salas extends JDialog {
 
 		// Criar uma variável para receber a linha da tabela
 		int setarLinha = tblSalas.getSelectedRow();
-		inputAndar.setSelectedItem(tblSalas.getModel().getValueAt(setarLinha, 1).toString());
-		inputNum.setText(tblSalas.getModel().getValueAt(setarLinha, 2).toString());
 
+		inputCategoria.setSelectedItem(tblSalas.getModel().getValueAt(setarLinha, 0).toString());
+		
+		//Setar o andar e o número da sala selecionada na linha específica da tabela que o usuário clicou
+		inputAndar.setSelectedItem(tblSalas.getModel().getValueAt(setarLinha, 1).toString());
+		
+		inputNum.setText(tblSalas.getModel().getValueAt(setarLinha, 2).toString());
 	}
 
+	
+	
 	// Criar método para buscar sala pelo botão Pesquisar
 	private void btnBuscarSala() {
 		String readBtn = "select * from salas where numeroSala = ? and andarSala = ?;";
@@ -315,9 +334,14 @@ public class Salas extends JDialog {
 			if (resultadoExecucao.next()) {
 				// Preencher os campos do formulário
 				inputID.setText(resultadoExecucao.getString(1));
-				inputAndar.setSelectedItem(resultadoExecucao.getString(2));
+				//inputAndar.setSelectedItem(resultadoExecucao.getString(2));
 				inputCod.setSelectedItem(resultadoExecucao.getString(5));
 				inputOcup.setText(resultadoExecucao.getString(6));
+				
+				
+				imgUpdate.setEnabled(true);
+				imgDelete.setEnabled(true);
+				imgCreate.setEnabled(false);
 			}
 
 			conexaoBanco.close();
@@ -397,29 +421,29 @@ public class Salas extends JDialog {
 			}
 		}
 	}
-	
+
 	private void deletarSala() {
-		String delete = "delete from salas where idSala = ?";
+		String delete = "delete from salas where numeroSala = ? and andarSala = ?;";
 		
 		try {
 			Connection conexaoBanco = dao.conectar();
 			
 			PreparedStatement executarSQL = conexaoBanco.prepareStatement(delete);
 			
-			executarSQL.setString(1, inputID.getText());
+			executarSQL.setString(1, inputNum.getText());
+			executarSQL.setString(2, inputAndar.getSelectedItem().toString());
 			
 			executarSQL.executeUpdate();
 			
 			JOptionPane.showMessageDialog(null, "Sala deletada com sucesso!");
 			
 			limparCampos();
-			
+			((DefaultTableModel)tblSalas.getModel()).setRowCount(0);
 			conexaoBanco.close();
 			
-			
-		} catch (Exception e) {
-			System.out.println();
-			
+		} 
+		catch (Exception e) {
+			System.out.println(e);
 		}
 	}
 
@@ -430,6 +454,9 @@ public class Salas extends JDialog {
 		inputNum.setText(null);
 		inputOcup.setText(null);
 		inputCategoria.requestFocus();
+		imgCreate.setEnabled(true);
+		imgDelete.setEnabled(false);
+	
 	}
 
 	public static void main(String[] args) {
